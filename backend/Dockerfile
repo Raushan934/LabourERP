@@ -1,10 +1,14 @@
 # Multi-stage Dockerfile for Spring Boot 3 Backend with Java 22
 FROM maven:3.9.8-eclipse-temurin-22-alpine AS build
 WORKDIR /app
+
+# Copy Maven mirror settings to bypass Maven Central 429 Too Many Requests
+COPY settings.xml .
 COPY pom.xml .
-RUN mvn dependency:go-offline -B || true
 COPY src ./src
-RUN mvn clean package -DskipTests
+
+# Package application using Google Maven mirror with network retries
+RUN mvn clean package -DskipTests -s settings.xml -Dmaven.wagon.http.retryHandler.count=5
 
 FROM eclipse-temurin:22-jre-alpine
 WORKDIR /app
