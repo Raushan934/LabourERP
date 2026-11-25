@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+**/node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+target/
+**/target/
+**/dist/
+*.class
+
+# Environment & Secrets (Never commit secrets to GitHub)
+.env
+.env.local
+.env.*.local
+
+# Tools & Executables
+tools/
+*.exe
+
+# Logs & Dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+hs_err_pid*.log
+replay_pid*.log
+
+# Editor & IDE directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.iml
+
+# OS metadata
+.DS_Store
+Thumbs.db

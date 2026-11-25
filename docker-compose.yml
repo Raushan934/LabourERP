@@ -1,0 +1,65 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: labour_erp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-RootGov@2026}
+      MYSQL_DATABASE: ${DB_NAME:-labour_erp_db}
+      MYSQL_USER: ${DB_USER:-labour_admin}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-LabourGov@2026}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-RootGov@2026}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - labour_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: labour_erp_backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod,docker,mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-labour_erp_db}
+      DB_USER: ${DB_USER:-labour_admin}
+      DB_PASSWORD: ${DB_PASSWORD:-LabourGov@2026}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351}
+      CORS_ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:5173,http://localhost:3000"
+    ports:
+      - "8080:8080"
+    networks:
+      - labour_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: labour_erp_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - labour_network
+
+volumes:
+  mysql_data:
+    name: labour_erp_mysql_data
+
+networks:
+  labour_network:
+    name: labour_erp_network
